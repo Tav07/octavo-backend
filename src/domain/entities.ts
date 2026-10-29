@@ -61,3 +61,30 @@ export interface Marca {
   descripcion: string;
   pais: string;
 }
+
+// ===================== Reservas =====================
+
+// Referencia al zapato reservado: lo justo para listar y mostrar.
+export interface ReferenciaZapato {
+  id: number;
+  nombre: string;
+  imagen: string;
+  precio: number;
+}
+
+// Reserva: lo que hacía el formulario de la Entrega 1, ahora ligada al
+// usuario autenticado (userId del token) y a un zapato del catálogo.
+export interface Reserva {
+  id: number;
+  userId: number;
+  // Campos del formulario original que siguen teniendo sentido; nombre y
+  // email de la persona salen del usuario autenticado.
+  telefono: string;
+  talla: number;
+  mensaje: string | null;
+  createdAt: Date;
+  zapato: ReferenciaZapato;
+  // Datos de la persona (para el listado del admin el email es útil;
+  // en "mis reservas" repite al usuario de la sesión).
+  usuario: { id: number; nombre: string; email: string };
+}

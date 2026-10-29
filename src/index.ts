@@ -8,6 +8,7 @@ import { TokensJwt } from "./infrastructure/security/jwt-tokens";
 import { RepositorioUsuariosPrisma } from "./infrastructure/repository/user-repository";
 import { RepositorioZapatosPrisma } from "./infrastructure/repository/zapato-repository";
 import { RepositorioMarcasPrisma } from "./infrastructure/repository/marca-repository";
+import { RepositorioReservasPrisma } from "./infrastructure/repository/reserva-repository";
 import { crearCasoRegistrarse } from "./application/auth/register";
 import { crearCasoIniciarSesion } from "./application/auth/login";
 import { crearCasoListarZapatos } from "./application/zapatos/listar";
@@ -16,6 +17,9 @@ import { crearCasoCrearZapato } from "./application/zapatos/crear";
 import { crearCasoActualizarZapato } from "./application/zapatos/actualizar";
 import { crearCasoEliminarZapato } from "./application/zapatos/eliminar";
 import { crearCasoListarMarcas } from "./application/marcas/listar";
+import { crearCasoCrearReserva } from "./application/reservas/crear";
+import { crearCasoListarMisReservas } from "./application/reservas/listar-mias";
+import { crearCasoListarTodasReservas } from "./application/reservas/listar-todas";
 import { createApp } from "./interface/http/server";
 
 const config = cargarConfiguracion();
@@ -25,6 +29,7 @@ const tokens = new TokensJwt(config.jwtSecret, config.jwtExpiraEn);
 const repositorioUsuarios = new RepositorioUsuariosPrisma(prisma);
 const repositorioZapatos = new RepositorioZapatosPrisma(prisma);
 const repositorioMarcas = new RepositorioMarcasPrisma(prisma);
+const repositorioReservas = new RepositorioReservasPrisma(prisma);
 
 const app = createApp({
   auth: {
@@ -44,9 +49,19 @@ const app = createApp({
     eliminar: crearCasoEliminarZapato({ repositorio: repositorioZapatos }),
     verificarToken: tokens,
   },
+  reservas: {
+    crear: crearCasoCrearReserva({
+      repositorioZapatos: repositorioZapatos,
+      repositorio: repositorioReservas,
+    }),
+    listarMias: crearCasoListarMisReservas({ repositorio: repositorioReservas }),
+    listarTodas: crearCasoListarTodasReservas({ repositorio: repositorioReservas }),
+    verificarToken: tokens,
+  },
   marcas: {
     listar: crearCasoListarMarcas({ repositorio: repositorioMarcas }),
   },
+  origenCors: config.frontendUrl,
 });
 
 app.listen(config.puerto, () => {

@@ -1,7 +1,7 @@
 // Interfaces de repositorios: los casos de uso dependen de esto,
 // de las implementaciones de infrastructure (Prisma) ni de oídas.
 
-import type { Marca, Usuario, Zapato } from "./entities";
+import type { Marca, Usuario, Zapato, Reserva } from "./entities";
 
 export interface RepositorioUsuarios {
   buscarPorEmail(email: string): Promise<Usuario | null>;
@@ -32,4 +32,19 @@ export interface RepositorioZapatos {
 
 export interface RepositorioMarcas {
   listar(): Promise<Marca[]>;
+}
+
+// Datos que el usuario envía al reservar: el userId sale del token,
+// nunca del body (lo agrega el caso de uso).
+export interface DatosReserva {
+  zapatoId: number;
+  telefono: string;
+  talla: number;
+  mensaje: string | null;
+}
+
+export interface RepositorioReservas {
+  crear(userId: number, datos: DatosReserva): Promise<Reserva>;
+  listarPorUsuario(userId: number): Promise<Reserva[]>;
+  listarTodas(): Promise<Reserva[]>;
 }
