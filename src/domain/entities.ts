@@ -32,3 +32,32 @@ export function usuarioAPublico(usuario: Usuario): UsuarioPublico {
     createdAt: usuario.createdAt,
   };
 }
+
+// ===================== Catálogo (Entrega 1) =====================
+
+// Referencia a la marca incluida en cada zapato (id + nombre bastan).
+export interface ReferenciaMarca {
+  id: number;
+  nombre: string;
+}
+
+// El precio es number en el dominio: infrastructure convierte
+// el Decimal de la base (ver zapato-repository).
+export interface Zapato {
+  id: number;
+  nombre: string;
+  categoria: string; // running | casual | formal
+  precio: number;
+  talla: number;
+  descripcion: string;
+  imagen: string;
+  marcaId: number;
+  marca: ReferenciaMarca;
+}
+
+export interface Marca {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  pais: string;
+}

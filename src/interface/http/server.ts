@@ -4,18 +4,27 @@
 import express, { Express } from "express";
 import healthRouter from "./routes/health.routes";
 import { crearRouterAuth, type Dependencias } from "./routes/auth.routes";
+import { crearRouterZapatos, type DependenciasZapatos } from "./routes/zapatos.routes";
+import {
+  crearRouterMarcas,
+} from "./routes/marcas.routes";
+import type { DependenciasMarcasController } from "./controllers/marcas.controller";
 import { manejarErrores } from "./middlewares/errors";
 
-interface CasosAuth {
+export interface DependenciasServidor {
   auth: Dependencias;
+  zapatos: DependenciasZapatos;
+  marcas: DependenciasMarcasController;
 }
 
-export function createApp(deps: CasosAuth): Express {
+export function createApp(deps: DependenciasServidor): Express {
   const app = express();
 
   app.use(express.json());
   app.use("/api", healthRouter);
   app.use("/api/auth", crearRouterAuth(deps.auth));
+  app.use("/api/zapatos", crearRouterZapatos(deps.zapatos));
+  app.use("/api/marcas", crearRouterMarcas(deps.marcas));
   app.use(manejarErrores);
 
   return app;
