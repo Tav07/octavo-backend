@@ -24,8 +24,9 @@ export type CasoCrearPedido = (
 
 export function crearCasoCrearPedido(deps: DependenciasCrearPedido): CasoCrearPedido {
   return async (userId, datos) => {
-    // Los pares (zapato, talla) únicos del carrito: dos tallas del mismo
-    // zapato son ítems distintos; el mismo par repetido se fusiona.
+    // Cada entrada del carrito es un ítem del pedido: el mismo par repetido
+    // se cobra por cada unidad. El Map solo agrupa los pares para validar
+    // cada uno una sola vez.
     const solicitados = new Map<string, ItemDeCarrito>();
     for (const item of datos.items) {
       solicitados.set(`${item.zapatoId}-${item.talla}`, item);
@@ -53,8 +54,8 @@ export function crearCasoCrearPedido(deps: DependenciasCrearPedido): CasoCrearPe
       throw new ValidationError("Revisa las tallas de tu carrito.", errores);
     }
 
-    // Montos: recalculados acá con los precios de la base.
-    const itemsListos = [...solicitados.values()].map((item) => ({
+    // Montos: recalculados acá con los precios de la base, ítem por ítem.
+    const itemsListos = datos.items.map((item) => ({
       zapatoId: item.zapatoId,
       talla: item.talla,
       precioUnitario: (porId.get(item.zapatoId) as { precio: number }).precio,
