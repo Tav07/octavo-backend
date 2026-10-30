@@ -1,6 +1,7 @@
-// Caso de uso: listar el catálogo paginado (GET /api/zapatos).
+// Caso de uso: listar el catálogo pagado con filtros opcionales
+// (GET /api/zapatos?page=&limit=&marcaId=&q=).
 import type { Zapato } from "../../domain/entities";
-import type { RepositorioZapatos } from "../../domain/repositories";
+import type { RepositorioZapatos, FiltrosCatalogo } from "../../domain/repositories";
 
 // Formato de respuesta del backend para listados paginados.
 export interface CatalogoPaginado {
@@ -8,11 +9,15 @@ export interface CatalogoPaginado {
   data: Zapato[];
 }
 
-export type CasoListarZapatos = (pagina: number, porPagina: number) => Promise<CatalogoPaginado>;
+export type CasoListarZapatos = (
+  pagina: number,
+  porPagina: number,
+  filtros?: FiltrosCatalogo
+) => Promise<CatalogoPaginado>;
 
 export function crearCasoListarZapatos(deps: { repositorio: RepositorioZapatos }): CasoListarZapatos {
-  return async (pagina, porPagina) => {
-    const { datos, total } = await deps.repositorio.listar(pagina, porPagina);
+  return async (pagina, porPagina, filtros) => {
+    const { datos, total } = await deps.repositorio.listar(pagina, porPagina, filtros);
     return {
       pagination: {
         page: pagina,

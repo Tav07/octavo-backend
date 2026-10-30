@@ -5,6 +5,10 @@ import { z } from "zod";
 
 export const CATEGORIAS = ["running", "casual", "formal"] as const;
 
+// Rango estándar de tallas del catálogo: si el admin no manda tallas
+// (frontend antiguo o formulario corto), se usa este rango completo.
+export const TALLAS_BASE = [35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
+
 export const zapatoEsquema = z.object({
   nombre: z
     .string()
@@ -22,6 +26,18 @@ export const zapatoEsquema = z.object({
     .int("La talla debe ser un número entero.")
     .min(20, "La talla debe estar entre 20 y 50.")
     .max(50, "La talla debe estar entre 20 y 50."),
+  tallas: z
+    .array(
+      z.coerce
+        .number("Cada talla debe ser un número.")
+        .int("Cada talla debe ser un número entero.")
+        .min(20, "Las tallas deben estar entre 20 y 50.")
+        .max(50, "Las tallas deben estar entre 20 y 50.")
+    )
+    .max(20, "Se aceptan hasta 20 tallas por zapato.")
+    .optional()
+    // Sin tallas en el body → rango estándar; nunca un array vacío.
+    .transform((valor) => [...new Set(valor ?? TALLAS_BASE)].sort((a, b) => a - b)),
   descripcion: z
     .string()
     .trim()
@@ -45,7 +61,7 @@ export const idEsquema = z.object({
     .positive("El id debe ser un entero positivo."),
 });
 
-// GET /api/zapatos?page=&limit=
+// GET /api/zapatos?page=&limit=&marcaId=&q=
 export const listarEsquema = z.object({
   page: z.coerce
     .number("La página debe ser un número.")
@@ -58,6 +74,20 @@ export const listarEsquema = z.object({
     .min(1, "El límite debe ser 1 o mayor.")
     .max(100, "El límite máximo por página es 100.")
     .default(10),
+  // Filtros del catálogo (ambos opcionales): marca para las chips y
+  // q para la búsqueda por texto.
+  marcaId: z.coerce
+    .number("La marca debe ser un número.")
+    .int("La marca debe referenciar un id válido.")
+    .positive("La marca debe referenciar un id válido.")
+    .optional(),
+  q: z
+    .string()
+    .trim()
+    .max(100, "La búsqueda es muy larga (máximo 100).")
+    .optional()
+    // q vacío equivale a sin búsqueda.
+    .transform((valor) => (valor === undefined || valor === "" ? undefined : valor)),
 });
 
 export type DatosZapatoHttp = z.infer<typeof zapatoEsquema>;

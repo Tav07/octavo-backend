@@ -48,7 +48,10 @@ export interface Zapato {
   nombre: string;
   categoria: string; // running | casual | formal
   precio: number;
-  talla: number;
+  talla: number; // talla principal de la Entrega 1 (sólo la usan las reservas)
+  // Tallas disponibles para comprar; el caso de uso de pedidos valida
+  // contra esta lista.
+  tallas: number[];
   descripcion: string;
   imagen: string;
   marcaId: number;
@@ -86,5 +89,35 @@ export interface Reserva {
   zapato: ReferenciaZapato;
   // Datos de la persona (para el listado del admin el email es útil;
   // en "mis reservas" repite al usuario de la sesión).
+  usuario: { id: number; nombre: string; email: string };
+}
+
+// ===================== Pedidos (carrito, pago contra entrega) =====================
+
+// PENDIENTE de pago al crearse; ENTREGADO cuando ya se recibió el pago
+// contra entrega (cambio administrativo, fuera del alcance de la API).
+export type EstadoPedido = "PENDIENTE" | "ENTREGADO";
+
+// Un ítem del pedido: zapato + talla elegida + precio congelado al
+// momento de la compra (independiente del precio actual del catálogo).
+export interface ItemPedido {
+  id: number;
+  zapatoId: number;
+  zapato: ReferenciaZapato;
+  talla: number;
+  precioUnitario: number;
+}
+
+export interface Pedido {
+  id: number;
+  userId: number;
+  estado: EstadoPedido;
+  // Total recalculado por el backend con los precios de la base.
+  total: number;
+  direccion: string;
+  telefono: string;
+  nota: string | null;
+  createdAt: Date;
+  items: ItemPedido[];
   usuario: { id: number; nombre: string; email: string };
 }

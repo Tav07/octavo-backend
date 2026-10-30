@@ -21,7 +21,12 @@ export function crearControladorZapatos(deps: DependenciasZapatosController) {
     async listar(req: Request, res: Response, next: NextFunction): Promise<void> {
       try {
         const consulta = req.consulta as DatosListado;
-        res.json(await deps.listar(consulta.page, consulta.limit));
+        res.json(
+          await deps.listar(consulta.page, consulta.limit, {
+            marcaId: consulta.marcaId,
+            q: consulta.q,
+          })
+        );
       } catch (error) {
         next(error);
       }

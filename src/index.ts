@@ -9,6 +9,7 @@ import { RepositorioUsuariosPrisma } from "./infrastructure/repository/user-repo
 import { RepositorioZapatosPrisma } from "./infrastructure/repository/zapato-repository";
 import { RepositorioMarcasPrisma } from "./infrastructure/repository/marca-repository";
 import { RepositorioReservasPrisma } from "./infrastructure/repository/reserva-repository";
+import { RepositorioPedidosPrisma } from "./infrastructure/repository/pedido-repository";
 import { crearCasoRegistrarse } from "./application/auth/register";
 import { crearCasoIniciarSesion } from "./application/auth/login";
 import { crearCasoListarZapatos } from "./application/zapatos/listar";
@@ -20,6 +21,9 @@ import { crearCasoListarMarcas } from "./application/marcas/listar";
 import { crearCasoCrearReserva } from "./application/reservas/crear";
 import { crearCasoListarMisReservas } from "./application/reservas/listar-mias";
 import { crearCasoListarTodasReservas } from "./application/reservas/listar-todas";
+import { crearCasoCrearPedido } from "./application/pedidos/crear";
+import { crearCasoListarMisPedidos } from "./application/pedidos/listar-mias";
+import { crearCasoListarTodosPedidos } from "./application/pedidos/listar-todas";
 import { createApp } from "./interface/http/server";
 
 const config = cargarConfiguracion();
@@ -30,6 +34,7 @@ const repositorioUsuarios = new RepositorioUsuariosPrisma(prisma);
 const repositorioZapatos = new RepositorioZapatosPrisma(prisma);
 const repositorioMarcas = new RepositorioMarcasPrisma(prisma);
 const repositorioReservas = new RepositorioReservasPrisma(prisma);
+const repositorioPedidos = new RepositorioPedidosPrisma(prisma);
 
 const app = createApp({
   auth: {
@@ -56,6 +61,15 @@ const app = createApp({
     }),
     listarMias: crearCasoListarMisReservas({ repositorio: repositorioReservas }),
     listarTodas: crearCasoListarTodasReservas({ repositorio: repositorioReservas }),
+    verificarToken: tokens,
+  },
+  pedidos: {
+    crear: crearCasoCrearPedido({
+      repositorioZapatos: repositorioZapatos,
+      repositorio: repositorioPedidos,
+    }),
+    listarMias: crearCasoListarMisPedidos({ repositorio: repositorioPedidos }),
+    listarTodas: crearCasoListarTodosPedidos({ repositorio: repositorioPedidos }),
     verificarToken: tokens,
   },
   marcas: {

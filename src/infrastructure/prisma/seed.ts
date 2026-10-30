@@ -46,6 +46,9 @@ const marcas = [
   },
 ];
 
+// Rango estándar de tallas disponibles para comprar cada zapato.
+const TALLAS_ESTANDAR = [35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
+
 type ZapatoSemilla = {
   nombre: string;
   marca: string;
@@ -228,6 +231,7 @@ async function main(): Promise<void> {
       categoria: zapato.categoria,
       precio: zapato.precio,
       talla: zapato.talla,
+      tallas: TALLAS_ESTANDAR,
       descripcion: zapato.descripcion,
       imagen: `/${zapato.imagen}`,
       marcaId,

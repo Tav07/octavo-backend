@@ -1,5 +1,6 @@
 // Modelo de datos de la tienda Octavo. Mismas entidades de la Entrega 1:
-// marcas y zapatos; usuarios y reservas para la autenticación y el alquiler.
+// marcas y zapatos; usuarios y reservas para la autenticación, y pedidos
+// (carrito con pago contra entrega) como extensión de la Entrega 3.
 
 generator client {
   provider = "prisma-client"
@@ -25,6 +26,7 @@ model User {
   createdAt DateTime @default(now())
 
   reservas Reserva[]
+  pedidos  Pedido[]
 }
 
 model Marca {
@@ -37,17 +39,19 @@ model Marca {
 }
 
 model Zapato {
-  id          Int     @id @default(autoincrement())
-  nombre      String  @unique
+  id          Int      @id @default(autoincrement())
+  nombre      String   @unique
   categoria   String // running | casual | formal
-  precio      Decimal @db.Decimal(12, 2)
-  talla       Int
+  precio      Decimal  @db.Decimal(12, 2)
+  talla       Int // talla principal de la Entrega 1: queda para las reservas
+  tallas      Int[] // tallas disponibles para comprar (el seed llena 35 a 44)
   descripcion String
   imagen      String // ruta pública del frontend, ej.: /images/nike-revolution-8.jpg
   marcaId     Int
-  marca       Marca   @relation(fields: [marcaId], references: [id])
+  marca       Marca    @relation(fields: [marcaId], references: [id])
 
-  reservas Reserva[]
+  reservas    Reserva[]
+  pedidoItems PedidoItem[]
 }
 
 model Reserva {
@@ -60,4 +64,41 @@ model Reserva {
   talla     Int
   mensaje   String?
   createdAt DateTime @default(now())
+}
+
+// ===================== Pedidos (carrito, pago contra entrega) =====================
+
+// El pedido nace PENDIENTE de pago cuando el usuario confirma su carrito;
+// queda ENTREGADO cuando ya fue pagado y llevado (cambio manual del admin).
+enum EstadoPedido {
+  PENDIENTE
+  ENTREGADO
+}
+
+model Pedido {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  user      User         @relation(fields: [userId], references: [id])
+  estado    EstadoPedido @default(PENDIENTE)
+  // Total calculado por el backend con los precios de la base; el
+  // frontend nunca manda precios ni montos.
+  total     Decimal      @db.Decimal(12, 2)
+  direccion String // dirección de entrega del pago contra entrega
+  telefono  String
+  nota      String?
+  createdAt DateTime     @default(now())
+
+  items PedidoItem[]
+}
+
+model PedidoItem {
+  id             Int     @id @default(autoincrement())
+  pedidoId       Int
+  pedido         Pedido  @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  zapatoId       Int
+  zapato         Zapato  @relation(fields: [zapatoId], references: [id])
+  talla          Int // talla elegida en la card, validada contra Zapato.tallas
+  // Precio congelado al momento de la compra: si el catálogo cambia
+  // después, el pedido histórico no se altera.
+  precioUnitario Decimal @db.Decimal(12, 2)
 }

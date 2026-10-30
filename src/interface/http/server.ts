@@ -7,6 +7,7 @@ import healthRouter from "./routes/health.routes";
 import { crearRouterAuth, type Dependencias } from "./routes/auth.routes";
 import { crearRouterZapatos, type DependenciasZapatos } from "./routes/zapatos.routes";
 import { crearRouterReservas, type DependenciasReservas } from "./routes/reservas.routes";
+import { crearRouterPedidos, type DependenciasPedidos } from "./routes/pedidos.routes";
 import {
   crearRouterMarcas,
 } from "./routes/marcas.routes";
@@ -17,6 +18,7 @@ export interface DependenciasServidor {
   auth: Dependencias;
   zapatos: DependenciasZapatos;
   reservas: DependenciasReservas;
+  pedidos: DependenciasPedidos;
   marcas: DependenciasMarcasController;
   // Origen permitido (FRONTEND_URL); nunca "*" para no abrir la API a cualquiera
   origenCors: string;
@@ -31,6 +33,7 @@ export function createApp(deps: DependenciasServidor): Express {
   app.use("/api/auth", crearRouterAuth(deps.auth));
   app.use("/api/zapatos", crearRouterZapatos(deps.zapatos));
   app.use("/api/reservas", crearRouterReservas(deps.reservas));
+  app.use("/api/pedidos", crearRouterPedidos(deps.pedidos));
   app.use("/api/marcas", crearRouterMarcas(deps.marcas));
   app.use(manejarErrores);
 
